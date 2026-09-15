@@ -167,8 +167,9 @@ def text_node_to_html_node(text_node: TextNode) -> LeafNode:
         return LeafNode("img", "", props = {"src": text_node.url, "alt": text_node.text})
 
 
-def markdown_to_html_node(markdown: str) -> HTMLNode:
+def markdown_to_html_node(markdown: str) -> ParentNode:
     blocks = markdown_to_blocks(markdown)
+
     types = []
     HTML_blocks = []
     for block in blocks:
@@ -214,7 +215,7 @@ def block_to_inline_text(block: str, type: BlockType) -> (str, str):
         lines = block.split("\n")
         out = ""
         for line in lines:
-            out += line[1:].strip + "\n"
+            out += line[1:].strip() + "\n"
         return (out[:-1], "")
     if type is BlockType.HEADING:
         i = 0
@@ -242,5 +243,5 @@ def list_raw_to_leaves(raw_text: str) -> list[ParentNode]:
         list_line = []
         for node in line_nodes:
             list_line.append(text_node_to_html_node(node))
-        elements.append(ParentNode("li", line_nodes))
+        elements.append(ParentNode("li", list_line))
     return elements
