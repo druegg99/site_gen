@@ -191,5 +191,88 @@ This is the same paragraph on a new line
                 ],
             )
 
+    def test_block_to_block(self):
+        block = """This is a regular paragraph.
+With two lines."""
+        block1 = """- This is an unordered list
+- With three elements
+- This is the last"""
+        block2 = """1. This is an ordered list
+2. It should identify correctly
+3. With three elements"""
+        block3 = """1. This isn't an ordered list
+3. The elements
+2. Are out of ordered"""
+        block4 = """- This starts like an unordered list
+but isnt"""
+        block5 = """```
+This is a code block, let's see if it works.
+```"""
+        block5 = """```
+Edge case for code, I think this should count as code```"""
+        block6 = """```
+this starts as code but isn't``"""
+        block7 = "###### this is a heading"
+        block8 = "# this is also a heading"
+        block9 = "####### this isn't a heading"
+        block10 = """>This is a quote
+> With two lines"""
+        block11 = """>this isn't a quote
+because there's no sign here
+>but here yes"""
+        block12 = ">only one quote"
+        block13 = """-test for
+- unordered lists
+- it shouldn't pass"""
+        self.assertEqual(block_to_block_type(block), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type(block1), BlockType.UNORDERED_LIST)
+        self.assertEqual(block_to_block_type(block2), BlockType.ORDERED_LIST)
+        self.assertEqual(block_to_block_type(block3), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type(block4), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type(block5), BlockType.CODE)
+        self.assertEqual(block_to_block_type(block6), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type(block7), BlockType.HEADING)
+        self.assertEqual(block_to_block_type(block8), BlockType.HEADING)
+        self.assertEqual(block_to_block_type(block9), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type(block10), BlockType.QUOTE)
+        self.assertEqual(block_to_block_type(block11), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type(block12), BlockType.QUOTE)
+        self.assertEqual(block_to_block_type(block13), BlockType.PARAGRAPH)
+
+    def test_paragraphs(self):
+        md = """
+This is **bolded** paragraph
+text in a p
+tag here
+
+This is another paragraph with _italic_ text and `code` here
+
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        print(html)
+        print("<div><p>This is <b>bolded</b> paragraph text in a p tag here</p><p>This is another paragraph with <i>italic</i> text and <code>code</code> here</p></div>")
+        self.assertEqual(
+            html,
+            "<div><p>This is <b>bolded</b> paragraph text in a p tag here</p><p>This is another paragraph with <i>italic</i> text and <code>code</code> here</p></div>",
+        )
+
+
+    def test_codeblock(self):
+        md = """
+```
+This is text that _should_ remain
+the **same** even with inline stuff
+```
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
+        )
+
 if __name__ == "__main__":
     unittest.main()
